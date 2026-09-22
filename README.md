@@ -241,7 +241,13 @@ What it does:
 How to use it:
 
 1. Push your changes to GitHub
-2. Create a GitHub Release (published)
+2. Create and push a version tag (for example `v0.1.0`)
+
+```bash
+git tag -a v0.1.0 -m "Release v0.1.0"
+git push origin v0.1.0
+```
+
 3. Wait for the `Build Windows Release` workflow to finish
 4. Download the generated installer from the Release assets
 
