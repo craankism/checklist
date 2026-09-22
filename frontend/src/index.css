@@ -1,0 +1,122 @@
+:root {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.4;
+  color: #1f2937;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f7f7f7;
+}
+
+#root {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.todo-form,
+.google-connect-section,
+.todo-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.todo-item {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.todo-item--done {
+  opacity: 0.75;
+}
+
+.todo-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.todo-description,
+.todo-meta,
+.empty-state,
+.info-text,
+.error-text {
+  margin: 0;
+}
+
+.todo-meta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.todo-item-actions,
+.todo-form-actions,
+.google-connect-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+label,
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+.priority-low {
+  color: #4b5563;
+}
+
+.priority-medium {
+  color: #1d4ed8;
+}
+
+.priority-high {
+  color: #b91c1c;
+}
+
+.error-text {
+  color: #b91c1c;
+}
+
+.info-text {
+  color: #1d4ed8;
+}
+
+@media (max-width: 640px) {
+  .todo-item {
+    flex-direction: column;
+  }
+}

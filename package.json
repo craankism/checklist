@@ -1,0 +1,17 @@
+{
+  "name": "checklist-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "frontend:dev": "npm --prefix frontend run dev",
+    "frontend:build": "npm --prefix frontend run build",
+    "frontend:lint": "npm --prefix frontend run lint",
+    "backend:run": "dotnet run --project backend/Checklist.Api.csproj --urls http://localhost:5050",
+    "electron:dev": "npm --prefix electron run dev",
+    "electron:build": "npm --prefix electron run build",
+    "dev": "concurrently -k \"npm run frontend:dev\" \"npm run electron:dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}

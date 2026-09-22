@@ -1,0 +1,27 @@
+# Node artifacts
+node_modules/
+frontend/node_modules/
+electron/node_modules/
+frontend/dist/
+electron/dist/
+
+# .NET artifacts
+backend/bin/
+backend/obj/
+
+# Logs
+*.log
+
+# Local SQLite and local app data files
+*.db
+*.db-shm
+*.db-wal
+
+# Local secrets and environment overrides
+backend/appsettings.Development.json
+.env
+.env.*
+
+# OS/editor extras
+.DS_Store
+.vscode/
