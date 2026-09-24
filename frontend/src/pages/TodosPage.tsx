@@ -3,20 +3,11 @@ import { TodoForm } from "../components/TodoForm";
 import { TodoList } from "../components/TodoList";
 import { useTodos } from "../hooks/useTodos";
 import { addGoogleCalendarReminder } from "../services/googleCalendarService";
-import type { TodoItem } from "../types/todo";
 
 // Main page container coordinating todo workflows.
 export function TodosPage() {
-  const {
-    todos,
-    isLoading,
-    error,
-    addTodo,
-    editTodo,
-    toggleTodoDone,
-    removeTodo,
-  } = useTodos();
-  const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
+  const { todos, isLoading, error, addTodo, toggleTodoDone, removeTodo } =
+    useTodos();
   const [message, setMessage] = useState<string>("");
 
   // Opens a prefilled Google Calendar reminder page for one todo item.
@@ -46,12 +37,7 @@ export function TodosPage() {
         </p>
       </header>
 
-      <TodoForm
-        editingTodo={editingTodo}
-        onCreate={addTodo}
-        onUpdate={editTodo}
-        onCancelEdit={() => setEditingTodo(null)}
-      />
+      <TodoForm onCreate={addTodo} />
 
       {isLoading ? (
         <p>Loading tasks...</p>
@@ -60,7 +46,6 @@ export function TodosPage() {
           todos={todos}
           onToggleDone={toggleTodoDone}
           onDelete={removeTodo}
-          onEdit={setEditingTodo}
           onAddGoogleReminder={handleAddGoogleReminder}
         />
       )}

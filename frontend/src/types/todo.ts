@@ -18,7 +18,7 @@ export interface CreateTodoRequest {
   title: string;
   description?: string;
   dueDate?: string | null;
-  priority: TodoPriority;
+  priority?: TodoPriority;
 }
 
 // This interface defines the payload used when updating a todo item.

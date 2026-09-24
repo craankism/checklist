@@ -22,8 +22,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", corsBuilder =>
     {
+        // Electron packaged builds use file:// and send Origin: null.
         corsBuilder
-            .WithOrigins("http://localhost:5173", "http://localhost:4173")
+            .SetIsOriginAllowed(origin =>
+                string.Equals(origin, "null", StringComparison.OrdinalIgnoreCase) ||
+                origin.StartsWith("http://localhost:", StringComparison.OrdinalIgnoreCase) ||
+                origin.StartsWith("https://localhost:", StringComparison.OrdinalIgnoreCase))
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

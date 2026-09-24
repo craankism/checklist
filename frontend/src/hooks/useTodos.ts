@@ -35,35 +35,67 @@ export function useTodos() {
     }
   }, []);
 
+  function getErrorMessage(err: unknown, fallback: string): string {
+    return err instanceof Error ? err.message : fallback;
+  }
+
   // Creates one todo then updates local state with server response.
   const addTodo = useCallback(async (payload: CreateTodoRequest) => {
-    const created = await createTodo(payload);
-    setTodos((current) => [created, ...current]);
+    setError("");
+
+    try {
+      const created = await createTodo(payload);
+      setTodos((current) => [created, ...current]);
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to create todo item."));
+      throw err;
+    }
   }, []);
 
   // Updates one todo then replaces the matching item in local state.
   const editTodo = useCallback(
     async (id: number, payload: UpdateTodoRequest) => {
-      const updated = await updateTodo(id, payload);
-      setTodos((current) =>
-        current.map((item) => (item.id === id ? updated : item)),
-      );
+      setError("");
+
+      try {
+        const updated = await updateTodo(id, payload);
+        setTodos((current) =>
+          current.map((item) => (item.id === id ? updated : item)),
+        );
+      } catch (err) {
+        setError(getErrorMessage(err, "Failed to update todo item."));
+        throw err;
+      }
     },
     [],
   );
 
   // Toggles completion then updates local state with server response.
   const toggleTodoDone = useCallback(async (id: number) => {
-    const updated = await toggleTodo(id);
-    setTodos((current) =>
-      current.map((item) => (item.id === id ? updated : item)),
-    );
+    setError("");
+
+    try {
+      const updated = await toggleTodo(id);
+      setTodos((current) =>
+        current.map((item) => (item.id === id ? updated : item)),
+      );
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to toggle todo item."));
+      throw err;
+    }
   }, []);
 
   // Deletes one todo item and removes it from local state.
   const removeTodo = useCallback(async (id: number) => {
-    await deleteTodo(id);
-    setTodos((current) => current.filter((item) => item.id !== id));
+    setError("");
+
+    try {
+      await deleteTodo(id);
+      setTodos((current) => current.filter((item) => item.id !== id));
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to delete todo item."));
+      throw err;
+    }
   }, []);
 
   useEffect(() => {

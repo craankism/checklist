@@ -5,7 +5,6 @@ interface TodoListProps {
   todos: TodoItem[];
   onToggleDone: (id: number) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
-  onEdit: (todo: TodoItem) => void;
   onAddGoogleReminder: (todoId: number) => Promise<void>;
 }
 
@@ -14,7 +13,6 @@ export function TodoList({
   todos,
   onToggleDone,
   onDelete,
-  onEdit,
   onAddGoogleReminder,
 }: TodoListProps) {
   if (todos.length === 0) {
@@ -33,7 +31,6 @@ export function TodoList({
             todo={todo}
             onToggleDone={onToggleDone}
             onDelete={onDelete}
-            onEdit={onEdit}
             onAddGoogleReminder={onAddGoogleReminder}
           />
         ))}

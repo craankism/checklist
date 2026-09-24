@@ -7,13 +7,21 @@ export async function apiRequest<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options?.headers ?? {}),
-    },
-    ...options,
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(options?.headers ?? {}),
+      },
+      ...options,
+    });
+  } catch {
+    throw new Error(
+      `Could not reach API at ${API_BASE_URL}. Ensure the backend is running.`,
+    );
+  }
 
   if (!response.ok) {
     const errorBody = await response.text();
