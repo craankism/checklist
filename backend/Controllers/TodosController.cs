@@ -11,6 +11,7 @@ namespace Checklist.Api.Controllers;
 [Route("api/[controller]")]
 public class TodosController : ControllerBase
 {
+    private const string GetTodoByIdRouteName = "GetTodoById";
     private readonly ITodoService _todoService;
 
     /// <summary>
@@ -36,7 +37,7 @@ public class TodosController : ControllerBase
     /// Returns one todo by id.
     /// </summary>
     /// <param name="id">Todo identifier.</param>
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int}", Name = GetTodoByIdRouteName)]
     public async Task<ActionResult<TodoItemReadDto>> GetByIdAsync([FromRoute] int id)
     {
         var todo = await _todoService.GetByIdAsync(id);
@@ -61,7 +62,7 @@ public class TodosController : ControllerBase
         }
 
         var created = await _todoService.CreateAsync(createDto);
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = created.Id }, created);
+        return CreatedAtRoute(GetTodoByIdRouteName, new { id = created.Id }, created);
     }
 
     /// <summary>
