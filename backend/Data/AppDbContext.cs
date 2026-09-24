@@ -27,11 +27,6 @@ public class AppDbContext : DbContext
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
     /// <summary>
-    /// OAuth credential table containing encrypted token values.
-    /// </summary>
-    public DbSet<GoogleOAuthCredential> GoogleOAuthCredentials => Set<GoogleOAuthCredential>();
-
-    /// <summary>
     /// Configures table relationships, constraints, and indexes.
     /// </summary>
     /// <param name="modelBuilder">Model builder for EF entity configuration.</param>
@@ -52,16 +47,6 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(x => new { x.UserId, x.IsDone, x.DueDate });
-        });
-
-        modelBuilder.Entity<GoogleOAuthCredential>(entity =>
-        {
-            entity.HasOne(x => x.User)
-                .WithOne(u => u.GoogleOAuthCredential)
-                .HasForeignKey<GoogleOAuthCredential>(x => x.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasIndex(x => x.UserId).IsUnique();
         });
     }
 }

@@ -1,12 +1,12 @@
 namespace Checklist.Api.DTOs;
 
 /// <summary>
-/// Output DTO with the created Google Calendar event id.
+/// Output DTO with the Google Calendar reminder creation URL.
 /// </summary>
 public class GoogleReminderResultDto
 {
     /// <summary>
-    /// Calendar event id returned by Google.
+    /// Browser URL that opens a prefilled Google Calendar reminder form.
     /// </summary>
-    public string EventId { get; set; } = string.Empty;
+    public string ReminderUrl { get; set; } = string.Empty;
 }

@@ -25,9 +25,4 @@ public class User
     /// Navigation property for all todos owned by this user.
     /// </summary>
     public ICollection<TodoItem> TodoItems { get; set; } = new List<TodoItem>();
-
-    /// <summary>
-    /// Optional one-to-one credential relation for Google OAuth tokens.
-    /// </summary>
-    public GoogleOAuthCredential? GoogleOAuthCredential { get; set; }
 }

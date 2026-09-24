@@ -1,7 +1,6 @@
 using Checklist.Api.Data;
 using Checklist.Api.Repositories;
 using Checklist.Api.Services;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,17 +10,10 @@ var localDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalA
 var appDataDirectory = Path.Combine(localDataFolder, "ChecklistDesktop");
 Directory.CreateDirectory(appDataDirectory);
 var dbPath = Path.Combine(appDataDirectory, "checklist.db");
-var dataProtectionKeysDirectory = Path.Combine(appDataDirectory, "data-protection-keys");
-Directory.CreateDirectory(dataProtectionKeysDirectory);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services
-    .AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
-    .SetApplicationName("ChecklistDesktop");
-builder.Services.Configure<GoogleOAuthOptions>(builder.Configuration.GetSection("GoogleOAuth"));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite($"Data Source={dbPath}"));
@@ -40,12 +32,9 @@ builder.Services.AddCors(options =>
 // Repository registrations.
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
-builder.Services.AddScoped<IGoogleOAuthCredentialRepository, GoogleOAuthCredentialRepository>();
 
 // Service registrations.
-builder.Services.AddScoped<ITokenProtectionService, TokenProtectionService>();
 builder.Services.AddScoped<ITodoService, TodoService>();
-builder.Services.AddScoped<IGoogleOAuthService, GoogleOAuthService>();
 builder.Services.AddScoped<IGoogleCalendarService, GoogleCalendarService>();
 
 var app = builder.Build();

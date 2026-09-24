@@ -1,7 +1,5 @@
 using Checklist.Api.Repositories;
-using Google.Apis.Calendar.v3;
-using Google.Apis.Calendar.v3.Data;
-using Google.Apis.Services;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Checklist.Api.Services;
 
@@ -12,22 +10,18 @@ public class GoogleCalendarService : IGoogleCalendarService
 {
     private readonly ITodoRepository _todoRepository;
     private readonly IUserRepository _userRepository;
-    private readonly IGoogleOAuthService _googleOAuthService;
 
     /// <summary>
-    /// Creates a service with dependencies needed to fetch todos and call Google Calendar.
+    /// Creates a service with dependencies needed to fetch todo reminder details.
     /// </summary>
     /// <param name="todoRepository">Todo repository.</param>
     /// <param name="userRepository">User repository.</param>
-    /// <param name="googleOAuthService">Google OAuth service.</param>
     public GoogleCalendarService(
         ITodoRepository todoRepository,
-        IUserRepository userRepository,
-        IGoogleOAuthService googleOAuthService)
+        IUserRepository userRepository)
     {
         _todoRepository = todoRepository;
         _userRepository = userRepository;
-        _googleOAuthService = googleOAuthService;
     }
 
     /// <inheritdoc />
@@ -42,46 +36,19 @@ public class GoogleCalendarService : IGoogleCalendarService
             throw new InvalidOperationException("Todo item requires a due date before a Google reminder can be created.");
         }
 
-        var accessToken = await _googleOAuthService.GetValidAccessTokenAsync();
-
-        // Google SDK accepts access tokens through GoogleCredential for authenticated requests.
-        var credential = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken);
-        using var calendarService = new CalendarService(new BaseClientService.Initializer
-        {
-            HttpClientInitializer = credential,
-            ApplicationName = "Checklist Desktop App"
-        });
-
-        // Use a short event window around due date so the reminder appears in calendar timelines.
+        // Build a Google Calendar event template URL and let browser session auth decide access.
         var dueUtc = DateTime.SpecifyKind(todo.DueDate.Value, DateTimeKind.Local).ToUniversalTime();
-        var calendarEvent = new Event
+        var endUtc = dueUtc.AddMinutes(30);
+
+        var query = new Dictionary<string, string?>
         {
-            Summary = todo.Title,
-            Description = todo.Description,
-            Start = new EventDateTime
-            {
-                DateTimeDateTimeOffset = new DateTimeOffset(dueUtc),
-                TimeZone = "UTC"
-            },
-            End = new EventDateTime
-            {
-                DateTimeDateTimeOffset = new DateTimeOffset(dueUtc.AddMinutes(30)),
-                TimeZone = "UTC"
-            },
-            Reminders = new Event.RemindersData
-            {
-                UseDefault = false,
-                Overrides =
-                [
-                    new EventReminder { Method = "popup", Minutes = 10 }
-                ]
-            }
+            ["action"] = "TEMPLATE",
+            ["text"] = todo.Title,
+            ["details"] = todo.Description,
+            ["dates"] = $"{dueUtc:yyyyMMdd'T'HHmmss'Z'}/{endUtc:yyyyMMdd'T'HHmmss'Z'}"
         };
 
-        var request = calendarService.Events.Insert(calendarEvent, "primary");
-        var created = await request.ExecuteAsync();
-
-        return created.Id ?? string.Empty;
+        return QueryHelpers.AddQueryString("https://calendar.google.com/calendar/render", query);
     }
 
     /// <summary>

@@ -29,7 +29,7 @@ public class GoogleCalendarController : ControllerBase
     [HttpPost("todos/{todoId:int}/reminder")]
     public async Task<ActionResult<GoogleReminderResultDto>> CreateReminderAsync([FromRoute] int todoId)
     {
-        var eventId = await _googleCalendarService.CreateReminderForTodoAsync(todoId);
-        return Ok(new GoogleReminderResultDto { EventId = eventId });
+        var reminderUrl = await _googleCalendarService.CreateReminderForTodoAsync(todoId);
+        return Ok(new GoogleReminderResultDto { ReminderUrl = reminderUrl });
     }
 }

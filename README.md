@@ -5,7 +5,7 @@ Base foundation project for a local desktop todo/checklist app using:
 - Backend: .NET 8 Web API + EF Core + SQLite
 - Frontend: React + TypeScript + Vite
 - Desktop shell: Electron
-- Integration: Google Calendar OAuth2 + reminder event creation
+- Integration: Google Calendar reminder link generation
 
 This version focuses on clean structure, clear comments, and easy extensibility.
 
@@ -54,19 +54,13 @@ Install these tools first:
 cd backend
 ```
 
-2. Create a local development config (do not commit secrets):
-
-```bash
-cp appsettings.Development.json.example appsettings.Development.json
-```
-
-3. Restore packages:
+2. Restore packages:
 
 ```bash
 dotnet restore
 ```
 
-4. Create/update database:
+3. Create/update database:
 
 ```bash
 dotnet ef database update
@@ -78,7 +72,7 @@ Notes:
 - The app also calls `EnsureCreated` on startup for local convenience.
 - SQLite database is stored in the local user app data folder (`ChecklistDesktop/checklist.db`).
 
-5. Run the backend API:
+4. Run the backend API:
 
 ```bash
 dotnet run --urls http://localhost:5050
@@ -152,59 +146,12 @@ npm run dev
 
 Note: backend process is launched by Electron main process.
 
-## Google OAuth2 Setup (Google Calendar)
+## Google Calendar Reminder Behavior
 
-Follow these exact steps:
-
-1. Create a Google Cloud project
-
-- Open Google Cloud Console
-- Create a new project (or choose an existing one)
-
-2. Enable Google Calendar API
-
-- Go to APIs & Services > Library
-- Search for Google Calendar API
-- Click Enable
-
-3. Configure OAuth consent screen
-
-- Go to APIs & Services > OAuth consent screen
-- Choose External (or Internal if your org requires it)
-- Fill app name and required fields
-- Add your account as a test user (for testing)
-
-4. Create OAuth Client ID/Secret
-
-- Go to APIs & Services > Credentials
-- Click Create Credentials > OAuth client ID
-- Application type: Desktop app
-- Copy Client ID and Client Secret
-
-5. Configure backend secrets
-
-- Copy `backend/appsettings.Development.json.example` to `backend/appsettings.Development.json`
-- Set:
-  - `GoogleOAuth:ClientId`
-  - `GoogleOAuth:ClientSecret`
-  - `GoogleOAuth:RedirectUri` (default: `http://localhost:5050/api/google-auth/callback`)
-
-6. Ensure redirect URI consistency
-
-- Redirect URI in config must match what backend uses.
-- If you change API port, update this URI accordingly.
-
-7. Connect account in app
-
-- Click Connect Google Account in frontend
-- Complete consent in browser
-- Return to app and click Refresh Google Status
-
-## Token Storage Security Notes
-
-- OAuth tokens are encrypted before storing in SQLite.
-- Encryption uses ASP.NET Core Data Protection with a local key ring.
-- Tradeoff: simple local security for single-user desktop usage, but not equivalent to centralized enterprise secret management.
+- The app does not manage Google sign-in.
+- Clicking Add Google Calendar Reminder builds a prefilled Google Calendar event URL and opens it in your default browser.
+- If the user is already signed in to Google in that browser, they can save the reminder immediately.
+- If the user is not signed in, Google will prompt for login in the browser.
 
 ## Build Windows Installer
 
@@ -261,7 +208,4 @@ You can also run it manually from the Actions tab via `workflow_dispatch`.
 - `PUT /api/todos/{id}`
 - `PATCH /api/todos/{id}/toggle`
 - `DELETE /api/todos/{id}`
-- `GET /api/google-auth/authorize-url`
-- `GET /api/google-auth/callback?code=...`
-- `GET /api/google-auth/status`
 - `POST /api/google-calendar/todos/{todoId}/reminder`
