@@ -7,6 +7,66 @@ const FRONTEND_DEV_URL = process.env.ELECTRON_RENDERER_URL || "http://localhost:
 const isDevelopment = process.env.NODE_ENV === "development";
 
 let backendProcess = null;
+const backendLogs = [];
+const BACKEND_LOG_LIMIT = 120;
+
+function appendBackendLog(source, data) {
+    const lines = String(data)
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+    for (const line of lines) {
+        backendLogs.push(`[${source}] ${line}`);
+    }
+
+    if (backendLogs.length > BACKEND_LOG_LIMIT) {
+        backendLogs.splice(0, backendLogs.length - BACKEND_LOG_LIMIT);
+    }
+}
+
+function getRecentBackendLogs() {
+    if (backendLogs.length === 0) {
+        return "No backend logs captured.";
+    }
+
+    return backendLogs.slice(-30).join("\n");
+}
+
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForBackendReady(timeoutMs = 30000, intervalMs = 500) {
+    const deadline = Date.now() + timeoutMs;
+    let lastError = "";
+
+    while (Date.now() < deadline) {
+        if (backendProcess && backendProcess.exitCode !== null) {
+            throw new Error(`Backend exited early with code ${backendProcess.exitCode}.`);
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/health`, {
+                cache: "no-store",
+            });
+
+            if (response.ok) {
+                return;
+            }
+
+            lastError = `Health check returned HTTP ${response.status}.`;
+        } catch (error) {
+            lastError = String(error);
+        }
+
+        await delay(intervalMs);
+    }
+
+    throw new Error(
+        `Timed out waiting for backend at ${API_URL}. Last check: ${lastError || "unknown"}`,
+    );
+}
 
 function showRendererErrorPage(window, details) {
     const errorHtml = `
@@ -126,8 +186,16 @@ function startBackendProcess() {
         const backendExecutablePath = path.join(process.resourcesPath, "backend", backendExecutableName);
 
         backendProcess = spawn(backendExecutablePath, ["--urls", API_URL], {
-            stdio: "inherit",
+            stdio: ["ignore", "pipe", "pipe"],
             shell: false,
+        });
+
+        backendProcess.stdout?.on("data", (data) => {
+            appendBackendLog("stdout", data);
+        });
+
+        backendProcess.stderr?.on("data", (data) => {
+            appendBackendLog("stderr", data);
         });
     }
 
@@ -229,7 +297,32 @@ function createMainWindow() {
 
 app.whenReady().then(() => {
     startBackendProcess();
-    createMainWindow();
+
+    waitForBackendReady()
+        .then(() => {
+            createMainWindow();
+        })
+        .catch((error) => {
+            const window = new BrowserWindow({
+                width: 960,
+                height: 700,
+                title: "ChecklistDesktop - Startup Error",
+                webPreferences: {
+                    preload: path.join(__dirname, "preload.js"),
+                    contextIsolation: true,
+                    nodeIntegration: false,
+                },
+            });
+
+            const details = [
+                `Backend startup check failed: ${String(error)}`,
+                "",
+                "Recent backend logs:",
+                getRecentBackendLogs(),
+            ].join("\n");
+
+            showRendererErrorPage(window, details);
+        });
 
     app.on("activate", () => {
         if (BrowserWindow.getAllWindows().length === 0) {
