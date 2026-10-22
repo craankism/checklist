@@ -24,15 +24,28 @@ export function TodoItemRow({
             onChange={() => onToggleDone(todo.id)}
             aria-label={`Mark ${todo.title} as ${todo.isDone ? "not done" : "done"}`}
           />
-          <span>{todo.title}</span>
+          <span className="todo-title">{todo.title}</span>
         </label>
+        <span
+          className={`todo-status ${todo.isDone ? "todo-status--done" : ""}`}
+        >
+          {todo.isDone ? "Completed" : "Active"}
+        </span>
       </div>
 
       <div className="todo-item-actions">
-        <button type="button" onClick={() => onAddGoogleReminder(todo.id)}>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => onAddGoogleReminder(todo.id)}
+        >
           Add to Google Calendar
         </button>
-        <button type="button" onClick={() => onDelete(todo.id)}>
+        <button
+          type="button"
+          className="btn btn-danger"
+          onClick={() => onDelete(todo.id)}
+        >
           Delete
         </button>
       </div>

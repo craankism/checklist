@@ -29,18 +29,20 @@ export function TodosPage() {
 
   return (
     <main className="app-main">
-      <header>
+      <header className="app-header">
+        <p className="app-eyebrow">Personal productivity</p>
         <h1>Checklist Desktop App</h1>
-        <p>
+        <p className="app-subtitle">
           Simple foundation for local todo management with Google Calendar
           reminder links.
         </p>
+        <p className="task-counter">Active tasks: {todos.length}</p>
       </header>
 
       <TodoForm onCreate={addTodo} />
 
       {isLoading ? (
-        <p>Loading tasks...</p>
+        <p className="loading-text">Loading tasks...</p>
       ) : (
         <TodoList
           todos={todos}

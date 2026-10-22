@@ -25,7 +25,34 @@ export function useTodos() {
 
     try {
       const items = await getTodos();
-      setTodos(items);
+
+      const completedItems = items.filter((item) => item.isDone);
+      if (completedItems.length === 0) {
+        setTodos(items);
+        return;
+      }
+
+      const deletionResults = await Promise.allSettled(
+        completedItems.map((item) => deleteTodo(item.id)),
+      );
+
+      const failedDeletionIds = new Set<number>();
+      deletionResults.forEach((result, index) => {
+        if (result.status === "rejected") {
+          failedDeletionIds.add(completedItems[index].id);
+        }
+      });
+
+      const remainingItems = items.filter(
+        (item) => !item.isDone || failedDeletionIds.has(item.id),
+      );
+      setTodos(remainingItems);
+
+      if (failedDeletionIds.size > 0) {
+        setError(
+          "Some completed tasks could not be auto-deleted. Please try again.",
+        );
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to load todo items.";

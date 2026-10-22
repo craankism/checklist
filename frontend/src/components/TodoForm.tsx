@@ -44,7 +44,11 @@ export function TodoForm({ onCreate }: TodoFormProps) {
         />
 
         <div className="todo-form-actions">
-          <button type="submit" disabled={isSubmitting}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Adding..." : "Add"}
           </button>
         </div>

@@ -23,7 +23,10 @@ export function TodoList({
 
   return (
     <section aria-label="Task list" className="todo-list-section">
-      <h2>Tasks</h2>
+      <div className="todo-list-header">
+        <h2>Tasks</h2>
+        <span className="todo-count-chip">{todos.length}</span>
+      </div>
       <ul className="todo-list">
         {todos.map((todo) => (
           <TodoItemRow
